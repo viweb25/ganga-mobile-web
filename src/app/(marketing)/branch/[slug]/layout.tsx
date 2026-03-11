@@ -5,7 +5,18 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// 1. DYNAMIC METADATA GENERATION
+// 1. STATIC PARAM GENERATION (Required for 'output: export')
+// This tells Next.js which folders to create at build time.
+export async function generateStaticParams() {
+  return [
+    { slug: "adyar" },
+    { slug: "t-nagar" },
+    { slug: "velachery" },
+    { slug: "anna-nagar" },
+  ];
+}
+
+// 2. DYNAMIC METADATA GENERATION
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   
@@ -28,18 +39,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// 2. THE REQUIRED DEFAULT EXPORT (This fixes your build error)
-export default function BranchLayout({
+// 3. THE DEFAULT EXPORT
+export default async function BranchLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
+  // We await params here just to ensure the layout is ready for the slug context
+  await params;
+
   return (
     <div className="flex flex-col min-h-screen">
-      {/* This layout wraps the specific branch page. 
-          You can add a branch-specific banner or 
-          navigation here if needed in the future.
-      */}
       <main className="flex-grow">
         {children}
       </main>
